@@ -2,15 +2,16 @@ from bs4 import BeautifulSoup
 import requests
 
 def create_linklist(page_titles):
-    all_red_linkis = []
-    all_interlanguage_links = []
+	all_red_linkis = []
+	all_interlanguage_links = []
 
-    for title in page_titles:
-      red_links, interlanguage_links = find_interlanguage_links_and_red_links('https://ja.wikipedia.org/wiki/' + title)
-      all_red_linkis.append(red_links)
-      all_interlanguage_links.append(interlanguage_links)
+	for title_tuple in page_titles:
+		title = title_tuple[0]
+		red_links, interlanguage_links = find_interlanguage_links_and_red_links('https://ja.wikipedia.org/wiki/' + title)
+		all_red_linkis.append(red_links)
+		all_interlanguage_links.append(interlanguage_links)
 
-    return all_red_linkis, all_interlanguage_links
+	return all_red_linkis, all_interlanguage_links
 
 def find_interlanguage_links_and_red_links(url):
     response = requests.get(url)

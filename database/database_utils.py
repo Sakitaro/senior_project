@@ -4,7 +4,7 @@ import mysql.connector
 def create_database_connection():
     password = os.getenv('DB_PASSWORD')
     cnx = mysql.connector.connect(
-        host='local_host',
+        host='localhost',
         user='root',
         password=password,
         database='dumpdata'
