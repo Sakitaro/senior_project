@@ -22,7 +22,7 @@ def search_wikipedia(keyword):
         sql = """
         SELECT * FROM text
         INNER JOIN page ON page.text_id = text.text_id
-        WHERE MATCH(page.page_title) AGAINST(%s IN BOOLEAN MODE);
+        WHERE MATCH(page.page_title) AGAINST(%s IN BOOLEAN MODE)
         """
 
         # FULLTEXT検索の場合、like_patternは不要
@@ -40,7 +40,7 @@ def search_wikipedia(keyword):
             print(f"No results found for '{keyword}'")
             return []
     except Error as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred with keyword '{keyword}': {e}")
         # 必要に応じてログファイルに書き込むか、例外を再度投げることもできます。
         # raise
         # エラー時の結果は空のリストやNoneで返すことも一般的です。
