@@ -1,5 +1,4 @@
 from database.database_utils import fetch_page_title, insert_links_into_database, search_wikipedia
-from scraping.redlink_filter import create_linklist
 
 def main():
     # ページタイトルを取得
