@@ -25,6 +25,7 @@ def search_wikipedia(keyword):
     cnx.close()
 
     if result_text:
+        print('good')
         extracted_contents = process_results(result_text)
         return extracted_contents
     else:

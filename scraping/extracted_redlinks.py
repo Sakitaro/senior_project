@@ -8,7 +8,7 @@ def extract_templates(text, template_names):
 def process_results(text):
     for row in text:
         text_id = row['text_id']
-        text_body = row['text_body']
+        text_body = row['text_body'].decode('utf-8')
 
         templates = extract_templates(text_body, ['ill2', '仮リンク'])
         extracted_contents = extract_template_content(templates)
