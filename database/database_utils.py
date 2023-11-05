@@ -16,10 +16,16 @@ def search_wikipedia(keyword):
     cnx = create_database_connection()
     cursor = cnx.cursor(dictionary=True)
 
-    sql = "SELECT * FROM text INNER JOIN page ON page.text_id = text.text_id WHERE page.page_title LIKE %s;"
-    like_pattern = f"%{keyword}%"
+    # FULLTEXT検索用のSQLクエリに変更
+    sql = """
+    SELECT * FROM text
+    INNER JOIN page ON page.text_id = text.text_id
+    WHERE MATCH(page.page_title) AGAINST(%s IN BOOLEAN MODE);
+    """
 
-    cursor.execute(sql, (like_pattern,))
+    # FULLTEXT検索の場合、like_patternは不要
+    # 代わりにキーワードをそのまま使用
+    cursor.execute(sql, (keyword,))
     result_text = cursor.fetchall()
     cursor.close()
     cnx.close()
