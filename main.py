@@ -6,7 +6,8 @@ def main():
 
     extracted_ills_list = []
     # 仮リンクたちを抽出
-    for page_title in page_titles:
+    for page_title_tuple in page_titles:
+        page_title = page_title_tuple[0]
         extracted_contents = search_wikipedia(page_title)
         for content in extracted_contents:
             extracted_ills_list.extend(content)
