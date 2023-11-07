@@ -15,8 +15,8 @@ def main():
             page_title = page_title_tuple[0]
             extracted_contents = search_wikipedia(page_title, cnx)
             print(extracted_contents)
-            # if extracted_contents:
-            #     insert_links_into_database(extracted_contents, cnx)
+            if extracted_contents:
+                insert_links_into_database(extracted_contents, cnx)
 
         cnx.commit()
 
