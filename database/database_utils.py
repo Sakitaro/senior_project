@@ -13,7 +13,8 @@ def create_database_connection():
     )
     return cnx
 
-def fetch_page_title(cursor):
+def fetch_page_title(cnx):
+    cursor = cnx.cursor()
     # SQLクエリを実行
     cursor.execute("SELECT page_title FROM red_from_unique")
 
@@ -21,9 +22,11 @@ def fetch_page_title(cursor):
     page_titles = cursor.fetchall()
     page_titles = list(set(page_titles))
 
+    cursor.close()
     return page_titles
 
-def search_wikipedia(keyword, cursor):
+def search_wikipedia(keyword, cnx):
+    cursor = cnx.cursor(dictionary=True)
     try:
         # FULLTEXT検索用のSQLクエリに変更
         sql = """
@@ -34,6 +37,8 @@ def search_wikipedia(keyword, cursor):
 
         cursor.execute(sql, (keyword,))
         result_text = cursor.fetchall()
+
+        cursor.close()
 
         if result_text:
             print('good')
@@ -49,7 +54,8 @@ def search_wikipedia(keyword, cursor):
         # エラー時の結果は空のリストやNoneで返すことも一般的です。
         return None
 
-def insert_links_into_database(extracted_contents, cursor):
+def insert_links_into_database(extracted_contents, cnx):
+    cursor = cnx.cursor()
     for content in extracted_contents:
         title = content[0]
         language = content[1]
@@ -78,3 +84,4 @@ def insert_links_into_database(extracted_contents, cursor):
             cursor.execute(insert_query, (title, other_language_title, language, True))
 
     print(test)
+    cursor.close()
