@@ -17,6 +17,7 @@ def process_results(text):
 
 def extract_template_content(templates):
     extracted_contents = []
+    error_contents = []
     for template in templates:
         template_content = template[1].strip('{}')
         content_list = [item.strip() for item in template_content.split('|')]
@@ -24,9 +25,9 @@ def extract_template_content(templates):
         content_list = content_list[1:]
 
         # 初期化
-        title = content_list[0]  # titleは常に最初の要素
-        language = None
-        other_language_link = content_list[2]
+        title = content_list[0] if len(content_list) > 0 else None
+        language = content_list[1] if len(content_list) > 1 else None
+        other_language_link = content_list[2] if len(content_list) > 2 else None
 
         # content_list[1] が language でない場合、次の要素をチェック
         # 2番目の要素が言語コードかどうかを確認
@@ -35,14 +36,16 @@ def extract_template_content(templates):
         elif len(content_list) > 3 and content_list[3] in known_languages:
             # 2番目が言語コードでない場合は4番目の要素を言語コードとして確認
             print(content_list[3])
-            language = content_list[3]
+            language = content_list[3] if len(content_list) > 3 else None
 
         # 言語コードが見つかればリストに追加
-        if language:
-            extracted_contents.append([title, language, other_language_link])
+        if title and language and other_language_link:
+            extracted_contents.append((title, language, other_language_link))
+        else:
+            error_contents.append((content_list))
 
 
-    return extracted_contents
+    return extracted_contents, error_contents
 # [
 #     ['en', 'Article1', '記事１'],
 #     ['ワムパム・ベルト', 'en', 'Wampum']

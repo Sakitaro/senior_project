@@ -42,8 +42,8 @@ def search_wikipedia(keyword, cnx):
 
         if result_text:
             print('good')
-            extracted_contents = process_results(result_text)
-            return extracted_contents
+            extracted_contents, error_contents = process_results(result_text)
+            return extracted_contents, error_contents
         else:
             print(f"No results found for '{keyword}'")
             return []
