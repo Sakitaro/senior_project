@@ -41,7 +41,6 @@ def search_wikipedia(keyword, cnx):
         cursor.close()
 
         if result_text:
-            print('good')
             extracted_contents, error_contents = process_results(result_text)
             return extracted_contents, error_contents
         else:
