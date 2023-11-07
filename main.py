@@ -5,7 +5,7 @@ from mysql.connector import Error
 def main():
     # データベース接続を開始
     cnx = create_database_connection()
-    cursor = cnx.cursor()
+    cursor = cnx.cursor(dictionary=True)
 
     try:
         # ページタイトルを取得
