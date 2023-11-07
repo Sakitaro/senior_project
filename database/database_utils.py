@@ -63,9 +63,6 @@ def insert_links_into_database(extracted_contents, cnx):
         # titleに一致するレコードをチェック
         cursor.execute("SELECT * FROM extracted_red_links WHERE title = %s", (title,))
         result = cursor.fetchone()
-        test = 0
-        if not result:
-            test += 1
 
         # レコードが存在する場合はjapanese_onlyをfalseにし、他の値を更新
         if result:
@@ -83,5 +80,4 @@ def insert_links_into_database(extracted_contents, cnx):
             """
             cursor.execute(insert_query, (title, other_language_title, language, True))
 
-    print(test)
     cursor.close()
