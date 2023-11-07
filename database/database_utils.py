@@ -46,13 +46,13 @@ def search_wikipedia(keyword, cnx):
             return extracted_contents, error_contents
         else:
             print(f"No results found for '{keyword}'")
-            return []
+            return [], []
     except Error as e:
         print(f"An error occurred with keyword '{keyword}': {e}")
         # 必要に応じてログファイルに書き込むか、例外を再度投げることもできます。
         # raise
         # エラー時の結果は空のリストやNoneで返すことも一般的です。
-        return None
+        return None, None
 
 def insert_links_into_database(extracted_contents, cnx):
     cursor = cnx.cursor()
