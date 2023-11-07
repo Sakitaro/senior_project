@@ -1,4 +1,5 @@
 import re
+from database.languages import known_languages
 
 def extract_templates(text, template_names):
     # いくつかのテンプレート名を含む正規表現を構築する
@@ -19,10 +20,27 @@ def extract_template_content(templates):
     for template in templates:
         template_content = template[1].strip('{}')
         content_list = [item.strip() for item in template_content.split('|')]
-        # 最初の要素を無視して次の3つの要素のみを取得
-        # テンプレートによっては3つ未満の要素しかない場合があるので、その場合のエラーを避ける
-        content_list = content_list[1:4] if len(content_list) > 3 else content_list[1:]
-        extracted_contents.append(content_list)
+         # 最初の要素はテンプレート名なので除外
+        content_list = content_list[1:]
+
+        # 初期化
+        title = content_list[0]  # titleは常に最初の要素
+        language = None
+        other_language_link = content_list[2]
+
+        # content_list[1] が language でない場合、次の要素をチェック
+        # 2番目の要素が言語コードかどうかを確認
+        if content_list[1] in known_languages:
+            language = content_list[1]
+        elif len(content_list) > 3 and content_list[3] in known_languages:
+            # 2番目が言語コードでない場合は4番目の要素を言語コードとして確認
+            print(content_list[3])
+            language = content_list[3]
+
+        # 言語コードが見つかればリストに追加
+        if language:
+            extracted_contents.append([title, language, other_language_link])
+
 
     return extracted_contents
 # [
