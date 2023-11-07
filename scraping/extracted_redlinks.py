@@ -24,6 +24,10 @@ def extract_template_content(templates):
          # 最初の要素はテンプレート名なので除外
         content_list = content_list[1:]
 
+        if len(content_list) <= 2:
+            error_contents.append((content_list))
+            continue
+
         # 初期化
         title = content_list[0] if len(content_list) > 0 else None
         language = content_list[1] if len(content_list) > 1 else None
@@ -46,10 +50,3 @@ def extract_template_content(templates):
 
 
     return extracted_contents, error_contents
-# [
-#     ['en', 'Article1', '記事１'],
-#     ['ワムパム・ベルト', 'en', 'Wampum']
-# ]
-
-
-
