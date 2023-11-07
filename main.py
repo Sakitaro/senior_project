@@ -1,23 +1,33 @@
-from database.database_utils import fetch_page_title, insert_links_into_database, search_wikipedia
+from database.database_utils import create_database_connection, fetch_page_title, insert_links_into_database, search_wikipedia
+from mysql.connector import Error
+
 
 def main():
-    # ページタイトルを取得
-    page_titles = fetch_page_title()
+    # データベース接続を開始
+    cnx = create_database_connection()
+    cursor = cnx.cursor()
 
-    extracted_ills_list = []
-    # 仮リンクたちを抽出
-    for page_title_tuple in page_titles:
-        page_title = page_title_tuple[0]
-        extracted_contents = search_wikipedia(page_title)
-        print(extracted_contents)
-        for content in extracted_contents:
-            extracted_ills_list.extend(content)
+    try:
+        # ページタイトルを取得
+        page_titles = fetch_page_title(cursor)
 
-    # リンクリストを作成
-    # all_red_links, all_interlanguage_links = create_linklist(page_titles)
+        # 仮リンクたちを抽出
+        for page_title_tuple in page_titles:
+            page_title = page_title_tuple[0]
+            extracted_contents = search_wikipedia(page_title, cursor)
+            print(extracted_contents)
+            insert_links_into_database(extracted_contents, cursor)
 
-    # データベースにリンクを挿入
-    insert_links_into_database(extracted_ills_list)
+        cnx.commit()
+
+    except Error as e:
+        cnx.rollback()
+        raise e
+    finally:
+        # エラーが発生してもしなくても接続を閉じる
+        cursor.close()
+        cnx.close()
+
 
 if __name__ == "__main__":
     main()

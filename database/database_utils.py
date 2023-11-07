@@ -13,11 +13,18 @@ def create_database_connection():
     )
     return cnx
 
-def search_wikipedia(keyword):
-    try:
-        cnx = create_database_connection()
-        cursor = cnx.cursor(dictionary=True)
+def fetch_page_title(cursor):
+    # SQLクエリを実行
+    cursor.execute("SELECT page_title FROM red_from_unique")
 
+    # 結果を取得
+    page_titles = cursor.fetchall()
+    page_titles = list(set(page_titles))
+
+    return page_titles
+
+def search_wikipedia(keyword, cursor):
+    try:
         # FULLTEXT検索用のSQLクエリに変更
         sql = """
         SELECT * FROM text
@@ -25,12 +32,8 @@ def search_wikipedia(keyword):
         WHERE MATCH(page.page_title) AGAINST(%s IN BOOLEAN MODE)
         """
 
-        # FULLTEXT検索の場合、like_patternは不要
-        # 代わりにキーワードをそのまま使用
         cursor.execute(sql, (keyword,))
         result_text = cursor.fetchall()
-        cursor.close()
-        cnx.close()
 
         if result_text:
             print('good')
@@ -46,32 +49,11 @@ def search_wikipedia(keyword):
         # エラー時の結果は空のリストやNoneで返すことも一般的です。
         return None
 
-def fetch_page_title():
-    cnx = create_database_connection()
-
-    # カーソルオブジェクトを作成
-    cursor = cnx.cursor()
-
-    # SQLクエリを実行
-    cursor.execute("SELECT page_title FROM red_from_unique")
-
-    # 結果を取得
-    page_titles = cursor.fetchall()
-    page_titles = list(set(page_titles))
-
-    # データベースからの接続を閉じる
-    cnx.close()
-
-    return page_titles
-
-def insert_links_into_database(extracted_ills_list):
-    cnx = create_database_connection()
-
-    # カーソルオブジェクトを作成
-    cursor = cnx.cursor()
-
-    # extracted_ills_list をループ処理
-    for title, other_language_title, language in extracted_ills_list:
+def insert_links_into_database(extracted_contents, cursor):
+    for content in extracted_contents:
+        title = content[0]
+        language = content[1]
+        other_language_title = content[2]
         # titleに一致するレコードをチェック
         cursor.execute("SELECT * FROM extracted_red_links WHERE title = %s", (title,))
         result = cursor.fetchone()
@@ -79,26 +61,20 @@ def insert_links_into_database(extracted_ills_list):
         if not result:
             test += 1
 
-        # # レコードが存在する場合はjapanese_onlyをfalseにし、他の値を更新
-        # if result:
-        #     update_query = """
-        #     UPDATE extracted_red_links
-        #     SET japanese_only = %s, other_language_title = %s, language = %s
-        #     WHERE title = %s
-        #     """
-        #     cursor.execute(update_query, (False, other_language_title, language, title))
-        # else:
-        #     # レコードが存在しない場合は新しいレコードを挿入
-        #     insert_query = """
-        #     INSERT INTO extracted_red_links (title, other_language_title, language, japanese_only)
-        #     VALUES (%s, %s, %s, %s)
-        #     """
-        #     cursor.execute(insert_query, (title, other_language_title, language, True))
+        # レコードが存在する場合はjapanese_onlyをfalseにし、他の値を更新
+        if result:
+            update_query = """
+            UPDATE extracted_red_links
+            SET japanese_only = %s, other_language_title = %s, language = %s
+            WHERE title = %s
+            """
+            cursor.execute(update_query, (False, other_language_title, language, title))
+        else:
+            # レコードが存在しない場合は新しいレコードを挿入
+            insert_query = """
+            INSERT INTO extracted_red_links (title, other_language_title, language, japanese_only)
+            VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(insert_query, (title, other_language_title, language, True))
 
     print(test)
-
-    # 変更をコミット
-    cnx.commit()
-
-    # データベースからの接続を閉じる
-    cnx.close()
