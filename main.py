@@ -9,6 +9,7 @@ def main():
     for page_title_tuple in page_titles:
         page_title = page_title_tuple[0]
         extracted_contents = search_wikipedia(page_title)
+        print(extracted_contents)
         for content in extracted_contents:
             extracted_ills_list.extend(content)
 
