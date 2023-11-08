@@ -28,9 +28,12 @@ def extract_template_content(templates):
             error_contents.append((content_list))
             continue
 
+        # label=で始まる要素をNoneに置換
+        content_list = [None if item.startswith('label=') else item for item in content_list]
+
         # 初期化
         title = content_list[0] if len(content_list) > 0 else None
-        language = content_list[1] if len(content_list) > 1 else None
+        language = content_list[1] if len(content_list) >1 else None
         other_language_link = content_list[2] if len(content_list) > 2 else None
 
         # content_list[1] が language でない場合、次の要素をチェック
@@ -39,14 +42,15 @@ def extract_template_content(templates):
             language = content_list[1]
         elif len(content_list) > 3 and content_list[3] in known_languages:
             # 2番目が言語コードでない場合は4番目の要素を言語コードとして確認
-            print(content_list[3])
             language = content_list[3] if len(content_list) > 3 else None
+        elif other_language_link == None:
+            other_language_link = content_list[4] if len(content_list) > 4 else None
 
         # 言語コードが見つかればリストに追加
         if title and language and other_language_link:
-            extracted_contents.append((title, language, other_language_link))
+            extracted_contents.append([title, language, other_language_link])
         else:
-            error_contents.append((content_list))
+            error_contents.append([content_list])
 
 
     return extracted_contents, error_contents
