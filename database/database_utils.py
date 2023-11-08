@@ -71,12 +71,14 @@ def insert_links_into_database(extracted_contents, cnx):
             WHERE title = %s
             """
             cursor.execute(update_query, (False, other_language_title, language, title))
+            print('できたよ')
         else:
             # レコードが存在しない場合は新しいレコードを挿入
             insert_query = """
             INSERT INTO extracted_red_links (title, other_language_title, language, japanese_only)
             VALUES (%s, %s, %s, %s)
             """
+            print('新規できたよ')
             cursor.execute(insert_query, (title, other_language_title, language, True))
 
     cursor.close()
