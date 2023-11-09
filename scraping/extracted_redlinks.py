@@ -31,19 +31,23 @@ def extract_template_content(templates):
         # label=で始まる要素を除外
         content_list = [item for item in content_list if not item.startswith('label=')]
 
+        # 3つの要素だけ取得
+        content_list = content_list[:3]
+
         # 初期化
         title = content_list[0] if len(content_list) > 0 else None
-        language = content_list[1] if len(content_list) >1 else None
         other_language_link = content_list[2] if len(content_list) > 2 else None
 
+        if content_list[1].lower() in known_languages:
+            language = content_list[1].lower()
        # もし1番目の要素が言語コードでない場合、他の要素と交換
-        if language not in known_languages:
-            if title in known_languages:
+        else:
+            if title.lower() in known_languages:
                 # タイトルと言語コードが入れ替わっている場合
-                language, title = title, language
-            elif other_language_link in known_languages:
+                language, title = title.lower(), content_list[1]
+            elif other_language_link.lower() in known_languages:
                 # 他言語リンクと言語コードが入れ替わっている場合
-                language, other_language_link = other_language_link, language
+                language, other_language_link = other_language_link.lower(), content_list[1]
             else:
                 # 言語コードが見つからない場合はエラーリストに追加
                 error_contents.append(content_list)
