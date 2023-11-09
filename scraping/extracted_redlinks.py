@@ -25,32 +25,35 @@ def extract_template_content(templates):
         content_list = content_list[1:]
 
         if len(content_list) <= 2:
-            error_contents.append((content_list))
+            error_contents.append(content_list)
             continue
 
-        # label=で始まる要素をNoneに置換
-        content_list = [None if item.startswith('label=') else item for item in content_list]
+        # label=で始まる要素を除外
+        content_list = [item for item in content_list if not item.startswith('label=')]
 
         # 初期化
         title = content_list[0] if len(content_list) > 0 else None
         language = content_list[1] if len(content_list) >1 else None
         other_language_link = content_list[2] if len(content_list) > 2 else None
 
-        # content_list[1] が language でない場合、次の要素をチェック
-        # 2番目の要素が言語コードかどうかを確認
-        if content_list[1] in known_languages:
-            language = content_list[1]
-        elif len(content_list) > 3 and content_list[3] in known_languages:
-            # 2番目が言語コードでない場合は4番目の要素を言語コードとして確認
-            language = content_list[3] if len(content_list) > 3 else None
-        elif other_language_link == None:
-            other_language_link = content_list[4] if len(content_list) > 4 else None
+       # もし1番目の要素が言語コードでない場合、他の要素と交換
+        if language not in known_languages:
+            if title in known_languages:
+                # タイトルと言語コードが入れ替わっている場合
+                language, title = title, language
+            elif other_language_link in known_languages:
+                # 他言語リンクと言語コードが入れ替わっている場合
+                language, other_language_link = other_language_link, language
+            else:
+                # 言語コードが見つからない場合はエラーリストに追加
+                error_contents.append(content_list)
+                continue
 
         # 言語コードが見つかればリストに追加
         if title and language and other_language_link:
             extracted_contents.append([title, language, other_language_link])
         else:
-            error_contents.append([content_list])
+            error_contents.append(content_list)
 
 
     return extracted_contents, error_contents
