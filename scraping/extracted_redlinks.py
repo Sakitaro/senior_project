@@ -34,6 +34,10 @@ def extract_template_content(templates):
         # 3つの要素だけ取得
         content_list = content_list[:3]
 
+        if len(content_list) < 3 or None in content_list:
+            error_contents.append(content_list)
+            continue
+
         # 初期化
         title = content_list[0] if len(content_list) > 0 else None
         other_language_link = content_list[2] if len(content_list) > 2 else None
