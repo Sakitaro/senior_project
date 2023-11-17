@@ -33,35 +33,47 @@ def extract_template_content(templates):
 
         # 3つの要素だけ取得
         content_list = content_list[:3]
-
+        
         if len(content_list) < 3 or None in content_list:
             error_contents.append(content_list)
             continue
+        
+        # 文字列を綺麗に
+        cleaned_content_list = []
+        for item in content_list:
+            if item[:2] in ['1=', '2=', '3=', '4=', '5=']:
+                cleaned_content_list.append(item[2:])
+            else:
+                cleaned_content_list.append(item)
+                
+        print(cleaned_content_list)
 
+        
         # 初期化
-        title = content_list[0] if len(content_list) > 0 else None
-        other_language_link = content_list[2] if len(content_list) > 2 else None
+        # title = cleaned_content_list[0] if len(content_list) > 0 else None
+        # other_language_link = cleaned_content_list[2] if len(content_list) > 2 else None
+        title, language, other_language_link = cleaned_content_list
 
-        if content_list[1].lower() in known_languages:
-            language = content_list[1].lower()
+        if language.lower() in known_languages:
+            language = language.lower()
        # もし1番目の要素が言語コードでない場合、他の要素と交換
         else:
             if title.lower() in known_languages:
                 # タイトルと言語コードが入れ替わっている場合
-                language, title = title.lower(), content_list[1]
+                language, title = title.lower(), language
             elif other_language_link.lower() in known_languages:
                 # 他言語リンクと言語コードが入れ替わっている場合
-                language, other_language_link = other_language_link.lower(), content_list[1]
+                language, other_language_link = other_language_link.lower(), language
             else:
                 # 言語コードが見つからない場合はエラーリストに追加
-                error_contents.append(content_list)
+                error_contents.append(cleaned_content_list)
                 continue
 
         # 言語コードが見つかればリストに追加
         if title and language and other_language_link:
             extracted_contents.append([title, language, other_language_link])
         else:
-            error_contents.append(content_list)
+            error_contents.append(cleaned_content_list)
 
 
     return extracted_contents, error_contents
