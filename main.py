@@ -15,7 +15,6 @@ def main():
         for page_title_tuple in page_titles:
             page_title = page_title_tuple[0]
             extracted_contents, error_contents = search_wikipedia(page_title, cnx)
-            print(extracted_contents)
             if error_contents:
                 error_logs.append(error_contents)
             if extracted_contents:

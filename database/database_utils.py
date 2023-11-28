@@ -2,7 +2,16 @@ import os
 import mysql.connector
 from scraping.extracted_redlinks import process_results
 from mysql.connector import Error
+import logging
 
+# ログ設定
+logging.basicConfig(filename='wikipedia_error.log', level=logging.ERROR, 
+                    format='%(asctime)s:%(levelname)s:%(message)s')
+
+def record_no_results(keyword):
+    with open('no_results_count.txt', 'a') as file:
+        file.write(f"No results found for '{keyword}'\n")
+        
 def create_database_connection():
     password = os.getenv('DB_PASSWORD')
     cnx = mysql.connector.connect(
@@ -28,11 +37,10 @@ def fetch_page_title(cnx):
 def search_wikipedia(keyword, cnx):
     cursor = cnx.cursor(dictionary=True)
     try:
-        # FULLTEXT検索用のSQLクエリに変更
         sql = """
         SELECT * FROM text
         INNER JOIN page ON page.text_id = text.text_id
-        WHERE MATCH(page.page_title) AGAINST(%s IN BOOLEAN MODE)
+        WHERE page.page_title = %s
         """
 
         cursor.execute(sql, (keyword,))
@@ -44,11 +52,10 @@ def search_wikipedia(keyword, cnx):
             extracted_contents, error_contents = process_results(result_text)
             return extracted_contents, error_contents
         else:
-            print(f"No results found for '{keyword}'")
+            record_no_results(keyword)
             return [], []
     except Error as e:
-        print(f"An error occurred with keyword '{keyword}': {e}")
-        # 必要に応じてログファイルに書き込むか、例外を再度投げることもできます。
+        logging.error(f"An error occurred with keyword '{keyword}': {e}", exc_info=True)        # 必要に応じてログファイルに書き込むか、例外を再度投げることもできます。
         # raise
         # エラー時の結果は空のリストやNoneで返すことも一般的です。
         return None, None
@@ -72,14 +79,12 @@ def insert_links_into_database(extracted_contents, cnx):
                 WHERE title = %s
                 """
                 cursor.execute(update_query, (False, other_language_title, language, title))
-                print('できたよ')
             else:
                 # レコードが存在しない場合は新しいレコードを挿入
                 insert_query = """
                 INSERT INTO extracted_redlinks (title, other_language_title, language, japanese_only)
                 VALUES (%s, %s, %s, %s)
                 """
-                print('新規できたよ')
                 cursor.execute(insert_query, (title, other_language_title, language, True))
 
         except mysql.connector.errors.DataError as e:
