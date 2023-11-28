@@ -26,5 +26,5 @@ known_languages = {
     'tg', 'ti', 'tk', 'tl', 'tn', 'to', 'tpi', 'tr', 'ts', 'tt', 'tum', 'tw', 'ty',
     'tyv', 'udm', 'ug', 'uk', 'ur', 'uz', 've', 'vec', 'vep', 'vi', 'vls', 'vo',
     'wa', 'war', 'wo', 'wuu', 'xal', 'xh', 'xmf', 'yi', 'yo', 'za', 'zea', 'zh',
-    'zh-classical', 'zh-min-nan', 'zh-yue', 'zu'
+    'zh-classical', 'zh-min-nan', 'zh-yue', 'zu', 'wikidata', 'km', 'be-tarask'
 }

@@ -54,20 +54,20 @@ def search_wikipedia(keyword, cnx):
         return None, None
 
 def insert_links_into_database(extracted_contents, cnx):
-    cursor = cnx.cursor()
+    cursor = cnx.cursor(buffered=True)
     for content in extracted_contents:
         try:
             title = content[0]
             language = content[1]
             other_language_title = content[2]
             # titleに一致するレコードをチェック
-            cursor.execute("SELECT * FROM extracted_red_links WHERE title = %s", (title,))
+            cursor.execute("SELECT * FROM extracted_redlinks WHERE title = %s", (title,))
             result = cursor.fetchone()
 
             # レコードが存在する場合はjapanese_onlyをfalseにし、他の値を更新
             if result:
                 update_query = """
-                UPDATE extracted_red_links
+                UPDATE extracted_redlinks
                 SET japanese_only = %s, other_language_title = %s, language = %s
                 WHERE title = %s
                 """
@@ -76,7 +76,7 @@ def insert_links_into_database(extracted_contents, cnx):
             else:
                 # レコードが存在しない場合は新しいレコードを挿入
                 insert_query = """
-                INSERT INTO extracted_red_links (title, other_language_title, language, japanese_only)
+                INSERT INTO extracted_redlinks (title, other_language_title, language, japanese_only)
                 VALUES (%s, %s, %s, %s)
                 """
                 print('新規できたよ')
