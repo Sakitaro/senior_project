@@ -22,6 +22,49 @@ def create_database_connection():
     )
     return cnx
 
+def fecth_redlinks_title(cnx):
+    cursor = cnx.cursor()
+    cursor.execute("SELECT title FROM extracted_redlinks WHERE japanese_only IS NULL")
+    
+    redlinks_titles = cursor.fetchall()
+    
+    cursor.close()
+    return redlinks_titles
+
+def check_label_exists_in_database(label, cnx):
+    cursor = cnx.cursor(buffered=True)
+    try:
+        query = "SELECT wikidata_id, label FROM extracted_redlinks2 WHERE label = %s"
+        cursor.execute(query, (label,))
+        result = cursor.fetchone()
+        print(result)
+        return result # (wikidata_id, label) or None
+    except Error as e:
+        print(f"Database error : {e}")
+    finally:
+        cursor.close()
+    
+
+def check_label_exists(redlink_title, cnx):
+    cursor = cnx.cursor(buffered=True)
+    
+    try:
+        result = check_label_exists_in_database(redlink_title, cnx)
+        
+        if result:
+            update_query = """
+            UPDATE extracted_redlinks
+            SET japanese_only = False, other_language_title = %s, language = 'wikidata'
+            WHERE title = %s
+            """
+            cursor.execute(update_query, (result[0], redlink_title,))
+            print('ok')
+    except Error as e:
+        print(f"Database error : {e}")
+    finally:
+        cursor.close()
+        
+
 def fetch_page_title(cnx):
     cursor = cnx.cursor()
     # SQLクエリを実行
