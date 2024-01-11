@@ -64,7 +64,7 @@ def main():
     cnx = create_database_connection()
     error_logs = []
     # データのPATH
-    path = "model.magnitude"
+    path = "~/wikipedia/model.magnitude"
     wv = Magnitude(path)
 
     try:
