@@ -5,13 +5,13 @@ from mysql.connector import Error
 import logging
 
 # ログ設定
-logging.basicConfig(filename='wikipedia_error.log', level=logging.ERROR, 
+logging.basicConfig(filename='wikipedia_error.log', level=logging.ERROR,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 def record_no_results(keyword):
     with open('no_results_count.txt', 'a') as file:
         file.write(f"No results found for '{keyword}'\n")
-        
+
 def create_database_connection():
     password = os.getenv('DB_PASSWORD')
     cnx = mysql.connector.connect(
@@ -25,9 +25,9 @@ def create_database_connection():
 def fecth_redlinks_title(cnx):
     cursor = cnx.cursor()
     cursor.execute("SELECT title FROM extracted_redlinks WHERE japanese_only IS NULL")
-    
+
     redlinks_titles = cursor.fetchall()
-    
+
     cursor.close()
     return redlinks_titles
 
@@ -43,14 +43,14 @@ def check_label_exists_in_database(label, cnx):
         print(f"Database error : {e}")
     finally:
         cursor.close()
-    
+
 
 def check_label_exists(redlink_title, cnx):
     cursor = cnx.cursor(buffered=True)
-    
+
     try:
         result = check_label_exists_in_database(redlink_title, cnx)
-        
+
         if result:
             update_query = """
             UPDATE extracted_redlinks
@@ -63,7 +63,38 @@ def check_label_exists(redlink_title, cnx):
         print(f"Database error : {e}")
     finally:
         cursor.close()
-        
+
+def check_almost_same_title(redlink_title, cnx, wv):
+    try:
+        match = wv.most_similar(redlink_title, topn=1)
+        if match[0][1] > 0.95:
+            return match[0][0]  # 類似しているタイトルを返す
+        else:
+            return None
+    except KeyError:  # 単語がモデルにない場合
+        print(f"Word not found in model: {redlink_title}")
+        return None
+    except Error as e:
+        print(f"Database error : {e}")
+        return None
+
+def update_magnitude_title(redlink_title, cnx, wv):
+    cursor = cnx.cursor(buffered=True)
+
+    try:
+        result = check_almost_same_title(redlink_title, cnx, wv)
+
+        if result:
+            # extracted_redlinksテーブルのtitleとredlink_titleが一致するもののjapanese_onlyカラムをfalseに書き換える。
+            update_query = """UPDATE extracted_redlinks SET japanese_only = %s WHERE title = %s"""
+            cursor.execute(update_query, (False, result))
+            cnx.commit()
+            print('Update successful')
+    except Error as e:
+        print(f"Database error : {e}")
+    finally:
+        cursor.close()
+
 
 def fetch_page_title(cnx):
     cursor = cnx.cursor()

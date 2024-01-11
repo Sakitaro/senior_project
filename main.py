@@ -1,5 +1,6 @@
-from database.database_utils import create_database_connection, fetch_page_title, insert_links_into_database, search_wikipedia, fecth_redlinks_title, check_label_exists
+from database.database_utils import create_database_connection, fetch_page_title, insert_links_into_database, search_wikipedia, fecth_redlinks_title, check_label_exists, update_magnitude_title
 from mysql.connector import Error
+from pymagnitude import Magnitude
 
 
 # def main():
@@ -33,10 +34,38 @@ from mysql.connector import Error
 #             for log in error_logs:
 #                 print(log)
 
+# def main():
+#     # データベース接続を開始
+#     cnx = create_database_connection()
+#     error_logs = []
+
+#     try:
+#         # redlink titleを取得
+#         redlinks_titles = fecth_redlinks_title(cnx)
+
+#         # wikidataにラベルが存在するか確認
+#         for redlink_title_tuple in redlinks_titles:
+#             redlink_title = redlink_title_tuple[0]
+#             check_label_exists(redlink_title, cnx)
+
+#         cnx.commit()
+#     except Error as e:
+#         cnx.rollback()
+#         error_logs.append(str(e))
+#     finally:
+#         cnx.close()
+#         if error_logs:
+#             print("Error logs:")
+#             for log in error_logs:
+#                 print(log)
+
 def main():
     # データベース接続を開始
     cnx = create_database_connection()
     error_logs = []
+    # データのPATH
+    path = "model.magnitude"
+    wv = Magnitude(path)
 
     try:
         # redlink titleを取得
@@ -45,9 +74,9 @@ def main():
         # wikidataにラベルが存在するか確認
         for redlink_title_tuple in redlinks_titles:
             redlink_title = redlink_title_tuple[0]
-            check_label_exists(redlink_title, cnx)
-
-        cnx.commit()
+            # check_label_exists(redlink_title, cnx)
+            # 新しい関数をここで実行
+            update_magnitude_title(redlink_title, cnx, wv)
     except Error as e:
         cnx.rollback()
         error_logs.append(str(e))
