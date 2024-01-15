@@ -67,6 +67,7 @@ def check_label_exists(redlink_title, cnx):
 def check_almost_same_title(redlink_title, cnx, wv):
     try:
         match = wv.most_similar(redlink_title, topn=1)
+        print('match=', match)
         if match[0][1] > 0.95:
             return match[0][0]  # 類似しているタイトルを返す
         else:
@@ -86,10 +87,10 @@ def update_magnitude_title(redlink_title, cnx, wv):
 
         if result:
             # extracted_redlinksテーブルのtitleとredlink_titleが一致するもののjapanese_onlyカラムをfalseに書き換える。
-            update_query = """UPDATE extracted_redlinks SET japanese_only = %s WHERE title = %s"""
-            cursor.execute(update_query, (False, result))
+            update_query = """UPDATE extracted_redlinks SET japanese_only = %s, other_language_title = %s WHERE title = %s"""
+            cursor.execute(update_query, (False, result, redlink_title))
             cnx.commit()
-            print('Update successful')
+            print('Update successful', result, redlink_title)
     except Error as e:
         print(f"Database error : {e}")
     finally:

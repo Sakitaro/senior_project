@@ -1,6 +1,8 @@
 from database.database_utils import create_database_connection, fetch_page_title, insert_links_into_database, search_wikipedia, fecth_redlinks_title, check_label_exists, update_magnitude_title
 from mysql.connector import Error
 from pymagnitude import Magnitude
+from tqdm import tqdm
+
 
 
 # def main():
@@ -70,15 +72,16 @@ def main():
     try:
         # redlink titleを取得
         redlinks_titles = fecth_redlinks_title(cnx)
+        # 処理する項目の総数を取得
+        total_items = len(redlinks_titles)
 
-        # wikidataにラベルが存在するか確認
-        for redlink_title_tuple in redlinks_titles:
-            redlink_title = redlink_title_tuple[0]
-            # check_label_exists(redlink_title, cnx)
+        # for redlink_title_tuple in redlinks_titles:
+        for i in tqdm(range(total_items), total=total_items):
+            redlink_title = redlinks_titles[i][0]
+            # redlink_title = redlink_title_tuple[0]
             # 新しい関数をここで実行
             update_magnitude_title(redlink_title, cnx, wv)
     except Error as e:
-        cnx.rollback()
         error_logs.append(str(e))
     finally:
         cnx.close()
