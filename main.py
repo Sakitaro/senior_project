@@ -75,6 +75,8 @@ def main():
         # 処理する項目の総数を取得
         total_items = len(redlinks_titles)
 
+        print(total_items)
+
         # for redlink_title_tuple in redlinks_titles:
         for i in tqdm(range(total_items)):
             redlink_title = redlinks_titles[i][0]
