@@ -76,7 +76,7 @@ def main():
         total_items = len(redlinks_titles)
 
         # for redlink_title_tuple in redlinks_titles:
-        for i in tqdm(range(total_items), total=total_items):
+        for i in tqdm(range(total_items)):
             redlink_title = redlinks_titles[i][0]
             # redlink_title = redlink_title_tuple[0]
             # 新しい関数をここで実行
