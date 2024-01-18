@@ -75,6 +75,7 @@ def main():
     try:
         redlinks_titles = fecth_redlinks_title(cnx)
         total_items = len(redlinks_titles)
+        cnx.close()
 
         with Pool() as pool:
             for _ in tqdm(pool.imap(process_title, [(title[0], cnx, wv) for title in redlinks_titles]), total=total_items):

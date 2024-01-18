@@ -79,7 +79,8 @@ def check_almost_same_title(redlink_title, cnx, wv):
         print(f"Database error : {e}")
         return None
 
-def update_magnitude_title(redlink_title, cnx, wv):
+def update_magnitude_title(redlink_title, wv):
+    cnx = create_database_connection()
     cursor = cnx.cursor(buffered=True)
 
     try:
@@ -95,6 +96,7 @@ def update_magnitude_title(redlink_title, cnx, wv):
         print(f"Database error : {e}")
     finally:
         cursor.close()
+        cnx.close()
 
 
 def fetch_page_title(cnx):
