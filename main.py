@@ -60,37 +60,63 @@ from tqdm import tqdm
 #             print("Error logs:")
 #             for log in error_logs:
 #                 print(log)
+from multiprocessing import Pool
+
+def process_title(title_info):
+    redlink_title, cnx, wv = title_info
+    update_magnitude_title(redlink_title, cnx, wv)
 
 def main():
-    # データベース接続を開始
     cnx = create_database_connection()
     error_logs = []
-    # データのPATH
     path = "~/wikipedia/model.magnitude"
     wv = Magnitude(path)
 
     try:
-        # redlink titleを取得
         redlinks_titles = fecth_redlinks_title(cnx)
-        # 処理する項目の総数を取得
         total_items = len(redlinks_titles)
 
-        print(total_items)
-
-        # for redlink_title_tuple in redlinks_titles:
-        for i in tqdm(range(total_items)):
-            redlink_title = redlinks_titles[i][0]
-            # redlink_title = redlink_title_tuple[0]
-            # 新しい関数をここで実行
-            update_magnitude_title(redlink_title, cnx, wv)
+        with Pool() as pool:
+            for _ in tqdm(pool.imap(process_title, [(title[0], cnx, wv) for title in redlinks_titles]), total=total_items):
+                pass
     except Error as e:
         error_logs.append(str(e))
     finally:
         cnx.close()
         if error_logs:
-            print("Error logs:")
             for log in error_logs:
                 print(log)
+
+# def main():
+#     # データベース接続を開始
+#     cnx = create_database_connection()
+#     error_logs = []
+#     # データのPATH
+#     path = "~/wikipedia/model.magnitude"
+#     wv = Magnitude(path)
+
+#     try:
+#         # redlink titleを取得
+#         redlinks_titles = fecth_redlinks_title(cnx)
+#         # 処理する項目の総数を取得
+#         total_items = len(redlinks_titles)
+
+#         print(total_items)
+
+#         # for redlink_title_tuple in redlinks_titles:
+#         for i in tqdm(range(total_items)):
+#             redlink_title = redlinks_titles[i][0]
+#             # redlink_title = redlink_title_tuple[0]
+#             # 新しい関数をここで実行
+#             update_magnitude_title(redlink_title, cnx, wv)
+#     except Error as e:
+#         error_logs.append(str(e))
+#     finally:
+#         cnx.close()
+#         if error_logs:
+#             print("Error logs:")
+#             for log in error_logs:
+#                 print(log)
 
 
 if __name__ == "__main__":
