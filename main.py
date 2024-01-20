@@ -62,10 +62,11 @@ from tqdm import tqdm
 #                 print(log)
 from multiprocessing import Pool
 
+path = "~/wikipedia/model.magnitude"
+wv = Magnitude(path)
+
 def process_title(title_info):
-    path = "~/wikipedia/model.magnitude"
     redlink_title = title_info[0]
-    wv = Magnitude(path)
     update_magnitude_title(redlink_title, wv)
 
 def main():
