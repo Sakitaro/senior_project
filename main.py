@@ -79,7 +79,7 @@ def main():
         cnx.close()
 
         with Pool() as pool:
-            for _ in tqdm(pool.imap(process_title, [title[0] for title in redlinks_titles]), total=total_items):
+            for _ in tqdm(pool.imap(process_title, [(title[0], ) for title in redlinks_titles]), total=total_items):
                 pass
     except Error as e:
         error_logs.append(str(e))
