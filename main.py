@@ -60,34 +60,57 @@ from tqdm import tqdm
 #             print("Error logs:")
 #             for log in error_logs:
 #                 print(log)
-from multiprocessing.dummy import Pool
+from threading import Thread
+from queue import Queue
+from tqdm import tqdm
 
 path = "~/wikipedia/model.magnitude"
 wv = Magnitude(path)
 
-def process_title(title_info):
-    redlink_title = title_info[0]
-    update_magnitude_title(redlink_title, wv)
+def worker(queue):
+    while True:
+        redlink_title = queue.get()
+        if redlink_title is None:  # Noneがキューに追加されたら終了
+            break
+        update_magnitude_title(redlink_title, wv)
+        queue.task_done()
 
 def main():
     cnx = create_database_connection()
     error_logs = []
+    redlinks_titles = fecth_redlinks_title(cnx)
+    total_items = len(redlinks_titles)
+    cnx.close()
 
-    try:
-        redlinks_titles = fecth_redlinks_title(cnx)
-        total_items = len(redlinks_titles)
-        cnx.close()
+    # スレッドとキューの設定
+    queue = Queue()
+    threads = [Thread(target=worker, args=(queue,)) for _ in range(10)]  # スレッドの数を設定
 
-        with Pool() as pool:
-            for _ in tqdm(pool.imap(process_title, [(title[0], ) for title in redlinks_titles]), total=total_items):
-                pass
-    except Error as e:
-        error_logs.append(str(e))
-    finally:
-        cnx.close()
-        if error_logs:
-            for log in error_logs:
-                print(log)
+    # スレッドの開始
+    for t in threads:
+        t.start()
+
+    # タスクのキューへの追加
+    for title in redlinks_titles:
+        queue.put(title[0])
+
+    # 進捗バーの表示
+    for _ in tqdm(range(total_items)):
+        queue.join()  # タスクが完了するまで待機
+
+    # スレッドの終了
+    for _ in threads:
+        queue.put(None)
+    for t in threads:
+        t.join()
+
+    if error_logs:
+        for log in error_logs:
+            print(log)
+
+if __name__ == "__main__":
+    main()
+
 
 # def main():
 #     # データベース接続を開始
