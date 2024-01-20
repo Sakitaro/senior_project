@@ -72,7 +72,10 @@ def worker(queue):
         redlink_title = queue.get()
         if redlink_title is None:  # Noneがキューに追加されたら終了
             break
-        update_magnitude_title(redlink_title, wv)
+        try:
+            update_magnitude_title(redlink_title, wv)
+        except Exception as e:
+            print(f"Error processing {redlink_title}: {e}")
         queue.task_done()
 
 def main():
@@ -84,7 +87,7 @@ def main():
 
     # スレッドとキューの設定
     queue = Queue()
-    threads = [Thread(target=worker, args=(queue,)) for _ in range(10)]  # スレッドの数を設定
+    threads = [Thread(target=worker, args=(queue,)) for _ in range(12)]
 
     # スレッドの開始
     for t in threads:
@@ -95,8 +98,11 @@ def main():
         queue.put(title[0])
 
     # 進捗バーの表示
-    for _ in tqdm(range(total_items)):
-        queue.join()  # タスクが完了するまで待機
+    with tqdm(total=total_items) as pbar:
+        while total_items > 0:
+            queue.get()
+            pbar.update(1)
+            total_items -= 1
 
     # スレッドの終了
     for _ in threads:
