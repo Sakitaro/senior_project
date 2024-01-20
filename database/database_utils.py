@@ -67,8 +67,8 @@ def check_label_exists(redlink_title, cnx):
 def check_almost_same_title(redlink_title, wv):
     try:
         match = wv.most_similar(redlink_title, topn=1)
-        print('match=', match)
         if match[0][1] > 0.95:
+            print('match=', match)
             return match[0][0]  # 類似しているタイトルを返す
         else:
             return None
