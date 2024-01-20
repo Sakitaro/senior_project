@@ -63,8 +63,8 @@ from tqdm import tqdm
 from multiprocessing import Pool
 
 def process_title(title_info):
-    redlink_title, cnx, wv = title_info
-    update_magnitude_title(redlink_title, cnx, wv)
+    redlink_title, wv = title_info
+    update_magnitude_title(redlink_title, wv)
 
 def main():
     cnx = create_database_connection()
@@ -78,7 +78,7 @@ def main():
         cnx.close()
 
         with Pool() as pool:
-            for _ in tqdm(pool.imap(process_title, [(title[0], cnx, wv) for title in redlinks_titles]), total=total_items):
+            for _ in tqdm(pool.imap(process_title, [(title[0], wv) for title in redlinks_titles]), total=total_items):
                 pass
     except Error as e:
         error_logs.append(str(e))

@@ -64,7 +64,7 @@ def check_label_exists(redlink_title, cnx):
     finally:
         cursor.close()
 
-def check_almost_same_title(redlink_title, cnx, wv):
+def check_almost_same_title(redlink_title, wv):
     try:
         match = wv.most_similar(redlink_title, topn=1)
         print('match=', match)
