@@ -60,7 +60,7 @@ from tqdm import tqdm
 #             print("Error logs:")
 #             for log in error_logs:
 #                 print(log)
-from multiprocessing import Pool
+from multiprocessing.dummy import Pool
 
 path = "~/wikipedia/model.magnitude"
 wv = Magnitude(path)
@@ -79,7 +79,7 @@ def main():
         cnx.close()
 
         with Pool() as pool:
-            for _ in tqdm(pool.imap(process_title, [(title[0], ) for title in redlinks_titles]), total=total_items):
+            for _ in tqdm(pool.imap(process_title, [title[0] for title in redlinks_titles]), total=total_items):
                 pass
     except Error as e:
         error_logs.append(str(e))
