@@ -84,7 +84,7 @@ def update_magnitude_title(redlink_title, wv):
     cursor = cnx.cursor(buffered=True)
 
     try:
-        result = check_almost_same_title(redlink_title, cnx, wv)
+        result = check_almost_same_title(redlink_title, wv)
 
         if result:
             # extracted_redlinksテーブルのtitleとredlink_titleが一致するもののjapanese_onlyカラムをfalseに書き換える。
